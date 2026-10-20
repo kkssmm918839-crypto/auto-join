@@ -51,7 +51,9 @@ try {
     await mkdir("./dist", { recursive: true });
     
     const manifest = JSON.parse(await readFile(`./plugins/auto-join/manifest.json`));
-    const entryFile = `./plugins/auto-join/${manifest.main}`;
+    
+    // إجبار السكريبت على أخذ ملف السورس المباشر بغض النظر عن المانيفست
+    const entryFile = `./plugins/auto-join/src/index.ts`;
     const outPath = `./dist/index.js`;
 
     const bundle = await rollup({
