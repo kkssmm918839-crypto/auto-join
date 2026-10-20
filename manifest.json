@@ -1,0 +1,15 @@
+{
+    "name": "AutoJoin",
+    "description": "/join <userid> — joins their current VC, waits for a seat if full. /loopjoin <userid> <attempts> — retries across up to 2-3 location checks if they move before a seat opens. /cancel to stop.",
+    "authors": [
+        {
+            "name": "Li Fawaz",
+            "id": "1330929142643818516"
+        }
+    ],
+    "main": "src/index.ts",
+    "vendetta": {
+        "icon": "ic_call"
+    }
+}
+
