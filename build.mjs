@@ -1,4 +1,4 @@
-import { readFile, writeFile, readdir } from "fs/promises";
+import { readFile, writeFile, mkdir } from "fs/promises";
 import { extname } from "path";
 import { createHash } from "crypto";
 
@@ -10,7 +10,6 @@ import swc from "@swc/core";
 
 const extensions = [".js", ".jsx", ".mjs", ".ts", ".tsx", ".cts", ".mts"];
 
-/** @type import("rollup").InputPluginOption */
 const plugins = [
     nodeResolve(),
     commonjs(),
@@ -48,41 +47,43 @@ const plugins = [
     esbuild({ minify: true }),
 ];
 
-for (let plug of await readdir("./plugins")) {
-    const manifest = JSON.parse(await readFile(`./plugins/${plug}/manifest.json`));
+try {
+    await mkdir("./dist", { recursive: true });
+    
+    // 1. قراءة الملف الأصلي
+    const manifest = JSON.parse(await readFile(`./plugins/auto-join/manifest.json`));
+    const entryFile = `./plugins/auto-join/${manifest.main}`; // سيعتمد على src/index.ts
     const outPath = `./dist/index.js`;
 
-    try {
-        const bundle = await rollup({
-            input: `./plugins/${plug}/${manifest.main}`,
-            onwarn: () => {},
-            plugins,
-        });
-    
-        await bundle.write({
-            file: outPath,
-            globals(id) {
-                if (id.startsWith("@vendetta")) return id.substring(1).replace(/\//g, ".");
-                const map = {
-                    react: "window.React",
-                };
+    // 2. تجميع الكود تحويله إلى JS
+    const bundle = await rollup({
+        input: entryFile,
+        onwarn: () => {},
+        plugins,
+    });
 
-                return map[id] || null;
-            },
-            format: "iife",
-            compact: true,
-            exports: "named",
-        });
-        await bundle.close();
-    
-        const toHash = await readFile(outPath);
-        manifest.hash = createHash("sha256").update(toHash).digest("hex");
-        manifest.main = "index.js";
-        await writeFile(`./dist/manifest.json`, JSON.stringify(manifest));
-    
-        console.log(`Successfully built ${manifest.name}!`);
-    } catch (e) {
-        console.error("Failed to build plugin...", e);
-        process.exit(1);
-    }
+    await bundle.write({
+        file: outPath,
+        globals(id) {
+            if (id.startsWith("@vendetta")) return id.substring(1).replace(/\//g, ".");
+            const map = { react: "window.React" };
+            return map[id] || null;
+        },
+        format: "iife",
+        compact: true,
+        exports: "named",
+    });
+    await bundle.close();
+
+    // 3. تجهيز ملف manifest.json الموجه لتطبيق Revenge
+    const toHash = await readFile(outPath);
+    manifest.hash = createHash("sha256").update(toHash).digest("hex");
+    manifest.main = "index.js"; // تعديل المسار هنا ليصبح جاهزاً للعميل
+
+    await writeFile(`./dist/manifest.json`, JSON.stringify(manifest));
+
+    console.log(`Successfully built ${manifest.name}!`);
+} catch (e) {
+    console.error("Failed to build plugin...", e);
+    process.exit(1);
 }
