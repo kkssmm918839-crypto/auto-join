@@ -50,12 +50,10 @@ const plugins = [
 try {
     await mkdir("./dist", { recursive: true });
     
-    // 1. قراءة الملف الأصلي
     const manifest = JSON.parse(await readFile(`./plugins/auto-join/manifest.json`));
-    const entryFile = `./plugins/auto-join/${manifest.main}`; // سيعتمد على src/index.ts
+    const entryFile = `./plugins/auto-join/${manifest.main}`;
     const outPath = `./dist/index.js`;
 
-    // 2. تجميع الكود تحويله إلى JS
     const bundle = await rollup({
         input: entryFile,
         onwarn: () => {},
@@ -75,10 +73,9 @@ try {
     });
     await bundle.close();
 
-    // 3. تجهيز ملف manifest.json الموجه لتطبيق Revenge
     const toHash = await readFile(outPath);
     manifest.hash = createHash("sha256").update(toHash).digest("hex");
-    manifest.main = "index.js"; // تعديل المسار هنا ليصبح جاهزاً للعميل
+    manifest.main = "index.js";
 
     await writeFile(`./dist/manifest.json`, JSON.stringify(manifest));
 
