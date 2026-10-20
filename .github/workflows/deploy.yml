@@ -37,6 +37,11 @@ jobs:
       - name: Build plugins
         run: pnpm build
 
+      - name: Copy manifest if missing
+        run: |
+          mkdir -p dist
+          cp plugins/auto-join/manifest.json dist/manifest.json || true
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
