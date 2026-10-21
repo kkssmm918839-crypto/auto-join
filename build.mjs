@@ -35,10 +35,7 @@ const plugins = [
                 },
                 env: {
                     targets: "defaults",
-                    include: [
-                        "transform-classes",
-                        "transform-arrow-functions",
-                    ],
+                    include: ["transform-classes", "transform-arrow-functions"],
                 },
             });
             return result.code;
@@ -49,11 +46,9 @@ const plugins = [
 
 try {
     await mkdir("./dist", { recursive: true });
-    
+
     const manifest = JSON.parse(await readFile(`./plugins/auto-join/manifest.json`));
-    
-    // إجبار السكريبت على أخذ ملف السورس المباشر بغض النظر عن المانيفست
-    const entryFile = `./plugins/auto-join/src/index.ts`;
+    const entryFile = `./plugins/auto-join/${manifest.main}`;
     const outPath = `./dist/index.js`;
 
     const bundle = await rollup({
