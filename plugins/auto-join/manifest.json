@@ -1,13 +1,13 @@
 {
     "name": "AutoJoin",
-    "description": "/join <userid> — joins their current VC, waits for a seat if full. /loopjoin <userid> <attempts> — retries across up to 2-3 location checks if they move before a seat opens. /cancel to stop.",
+    "description": "Join commands for voice channels. /join finds and joins a user, waiting for a seat if full. /loopjoin retries up to 3 times. /cancel stops an active wait.",
     "authors": [
         {
             "name": "Li Fawaz",
             "id": "1330929142643818516"
         }
     ],
-    "main": "index.js",
+    "main": "src/index.ts",
     "vendetta": {
         "icon": "ic_call"
     }
